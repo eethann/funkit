@@ -15,6 +15,8 @@ local make_fun_ops = function()
     -- TODO determine if we want to operate on bipolar values instead of unipolar
     -- The Kurzweil functions operate on bipolar, so that would be truer to the original.
     -- Actually, let's just convert to bipolar and then have an option to convert back.
+    -- May need to handle things like the boolean threshold differently for bipolar:
+    -- true may be > 0 instead of >0.5
     return {
         max = {
           order = 1,
@@ -204,37 +206,30 @@ local make_fun = function(i, targets)
     end)
     params:add_control(n(i, "fun_value_a"), "value a", controlspec.UNIPOLAR)
     params:add_control(n(i, "fun_value_b"), "value b", controlspec.UNIPOLAR)
-    -- params:hide(n(i,"fun_value_a"))
-    -- params:hide(n(i,"fun_value_b"))
-    local value_a
-    local value_b
-    params:set_action(n(i, "fun_value_a"), function(a)
-        value_a = a
-    end)
-    params:set_action(n(i, "fun_value_b"), function(b)
-        value_b = b
-    end)
-    matrix:defer_bang(n(i,"fun_value_a"))
-    matrix:defer_bang(n(i,"fun_value_b"))
-    local tick = function()
+    local value_a = 0
+    local value_b = 0
+    local update_value = function()
         if not matrix:used("fun_" .. i) then
             return
         end
-        value_a = params:get(n(i, "fun_value_a"))
-        value_b = params:get(n(i, "fun_value_b"))
         local value = FUN_OP(value_a,value_b)
         local bipolar = params:get(n(i, "fun_bipolar"))
         if bipolar > 0 then value = 2 * value - 0.5 end
-        if global_debug then
+        if funkit_debug then
           print("in: "..value_a.." out: "..value)
         end
         matrix:set("fun_"..i, value)
     end
-    funkit.funs[i] = toolkit.lattice:new_pattern{
-        enabled = true,
-        division = 1/96,
-        action = tick,
-    }
+    params:set_action(n(i, "fun_value_a"), function(a)
+        value_a = a
+        update_value()
+    end)
+    params:set_action(n(i, "fun_value_b"), function(b)
+        value_b = b
+        update_value()
+    end)
+    matrix:defer_bang(n(i,"fun_value_a"))
+    matrix:defer_bang(n(i,"fun_value_b"))
 end
 
 local pre_init = function()
