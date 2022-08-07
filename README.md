@@ -27,11 +27,11 @@ in Kurzweil's V.A.S.T. synths, and include the following operators:
 * **(a+b)/2 **: 
 * **and**: logical and with threshold of 0.5 
 * **or**: logical or
-* **a(y + b)**: chaotic func
-* **ay + b**: chaotic func
-* **(a + 1)y + b**: chaotic func
-* **y +a(y + b)**: chaotic func
-* **a |y| + b**: chaotic func
+* **a(y + b)**: chaotic fun
+* **ay + b**: chaotic fun
+* **(a + 1)y + b**: chaotic fun
+* **y +a(y + b)**: chaotic fun
+* **a |y| + b**: chaotic fun
 * **S&H**: sample B when A > 0.5
 * **T&H**: track B when A > 0.5
 
